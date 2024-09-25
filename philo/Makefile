@@ -11,9 +11,9 @@
 # **************************************************************************** #
 
 NAME = philo
-CC = gcc
+CC = cc
 RM = rm -f
-FLAGS = -Wall -Wextra -Werror -g #-fsanitize=thread
+FLAGS = -Wall -Wextra -Werror -g #-fsanitize=address #-fsanitize=thread
 INCLUDE = -I include
 MAKE = make -C
 DN = > /dev/null

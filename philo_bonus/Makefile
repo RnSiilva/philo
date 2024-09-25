@@ -11,9 +11,9 @@
 # **************************************************************************** #
 
 NAME = philo_bonus
-CC = gcc
+CC = cc
 RM = rm -f
-FLAGS = -Wall -Wextra -Werror -g #-fsanitize=thread
+FLAGS = -Wall -Wextra -Werror -g #-fsanitize=address #-fsanitize=thread
 INCLUDE = -I include
 MAKE = make -C
 DN = > /dev/null
@@ -32,7 +32,7 @@ NO_COLOR	=	\033[0m
 
 COMP_START	=	echo "\n $(BOLD_YELLOW)Make: $(NO_COLOR)Starting the compilation...\n"
 
-READY		=	echo "\n $(BOLD_GREEN)Ready$(NO_COLOR) : The program $(BOLD_CYAN) philo $(NO_COLOR)has been compiled!\n"
+READY		=	echo "\n $(BOLD_GREEN)Ready$(NO_COLOR) : The program $(BOLD_CYAN) philo_bonus $(NO_COLOR)has been compiled!\n"
 
 CLEANED		=	echo "\n $(BOLD_PURPLE)Clean: $(NO_COLOR)Removed all the \".o\" files \n"
 

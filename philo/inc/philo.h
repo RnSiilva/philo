@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: resilva <resilva@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: resilva < resilva@student.42porto.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 20:26:11 by resilva           #+#    #+#             */
-/*   Updated: 2024/09/20 18:51:39 by resilva          ###   ########.fr       */
+/*   Updated: 2024/09/25 09:50:25 by resilva          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #define DIE "died"
 #define NO 0
 #define YES 1
+#define WRONG_INP "Wrong input\nOne or more arguments are invalid!"
 
 typedef struct s_table	t_table;
 typedef pthread_mutex_t	t_mtx;
@@ -99,31 +100,6 @@ typedef struct s_table
 	t_mtx		finish_padlock;
 }				t_table;
 
-/**
- * @brief Enumeration representing different mutex operations used in
- * the simulation.
- *
- * @param INIT     Initializes a mutex.
- * @param LOCK     Locks a mutex, preventing other threads from accessing the
- * critical section.
- * @param UNLOCK   Unlocks a mutex, allowing other threads to access the
- * critical section.
- * @param DESTROY  Destroys a mutex and frees any associated resources.
- * @param CREATE   Creates a new thread.
- * @param JOIN     Joins a thread, waiting for its completion.
- * @param DETACH   Detaches a thread, allowing it to run independently.
- */
-typedef enum s_opcode
-{
-	INIT,
-	LOCK,
-	UNLOCK,
-	DESTROY,
-	CREATE,
-	JOIN,
-	DETACH,
-}			t_opcode;
-
 // *** DINNER ****
 
 /**
@@ -150,8 +126,9 @@ void		start_monitor(t_table *table);
  *
  * @param table        Pointer to the table structure, used to access and clean
  * up resources.
+ * @return             Returns 0 if success, and 0 if failed.
  */
-void		finish_dinner(t_table *table);
+int			finish_dinner(t_table *table);
 
 /**
  * @brief Checks if it is time to finish the simulation based on the table's
@@ -163,40 +140,6 @@ void		finish_dinner(t_table *table);
  * @return             Returns 1 if it is time to finish, otherwise 0.
  */
 int			is_time_to_finish(t_table *table, int finish);
-
-// *** SAFE_FUNCTIONS ***
-
-/**
- * @brief Allocates memory safely, handling any potential allocation errors.
- *
- * @param table        Pointer to the table structure, used for error handling.
- * @param bytes        Number of bytes to allocate.
- * @return             Pointer to the allocated memory, or exits on failure.
- */
-void		*safe_malloc(t_table *table, size_t bytes);
-
-/**
- * @brief Safely performs mutex operations, handling errors and synchronization.
- *
- * @param table        Pointer to the table structure, used for error handling.
- * @param mutex        Pointer to the mutex to operate on.
- * @param opcode       Operation code specifying the mutex operation
- * (INIT, LOCK, UNLOCK, etc.).
- */
-void		safe_mutex(t_table *table, t_mtx *mutex, t_opcode opcode);
-
-/**
- * @brief Safely performs thread operations, managing thread creation
- * and handling errors.
- *
- * @param table        Pointer to the table structure, used for error handling.
- * @param thread       Pointer to the thread to operate on.
- * @param data         Pointer to the data to pass to the thread function.
- * @param opcode       Operation code specifying the thread operation
- * (CREATE, JOIN, DETACH, etc.).
- */
-void		safe_thread(t_table *table, \
-	pthread_t *thread, void *data, t_opcode opcode);
 
 // *** UTILS ***
 
@@ -221,6 +164,7 @@ int			ft_atoi(char *str);
  *
  * @param philo        Pointer to the philosopher performing the action.
  * @param action       String describing the action to be printed.
+ * 
  */
 void		print_action(t_philo *philo, char *action);
 
@@ -245,4 +189,4 @@ void		ft_sleep(t_table *table, long long stop);
  * @param mode         Mode of exit, determining whether to perform specific
  * actions on exit.
  */
-void		error_exit(t_table *table, char *msg, int mode);
+int			msg_error(t_table *table, char *msg, int mode);

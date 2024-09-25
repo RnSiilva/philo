@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   finish.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: resilva <resilva@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: resilva < resilva@student.42porto.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/19 00:50:12 by resilva           #+#    #+#             */
-/*   Updated: 2024/09/19 22:42:46 by resilva          ###   ########.fr       */
+/*   Updated: 2024/09/25 09:47:44 by resilva          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 
 static void	clean_table(t_table *table)
 {
-	free (table->philo);
-	free (table->fork_padlock);
+	if (table->philo)
+		free (table->philo);
+	if (table->fork_padlock)
+		free (table->fork_padlock);
 }
 
 static void	destroy_padlocks(t_table *table)
@@ -24,30 +26,28 @@ static void	destroy_padlocks(t_table *table)
 
 	i = -1;
 	while (++i < table->num_of_philo)
-		safe_mutex(table, &table->fork_padlock[i], DESTROY);
+		pthread_mutex_destroy(&table->fork_padlock[i]);
 	clean_table(table);
-	safe_mutex(table, &table->print_padlock, DESTROY);
-	safe_mutex(table, &table->eat_padlock, DESTROY);
-	safe_mutex(table, &table->finish_padlock, DESTROY);
+	pthread_mutex_destroy(&table->print_padlock);
+	pthread_mutex_destroy(&table->eat_padlock);
+	pthread_mutex_destroy(&table->finish_padlock);
 }
 
-void	finish_dinner(t_table *table)
+int	finish_dinner(t_table *table)
 {
 	int	i;
 
 	i = -1;
 	while (++i < table->num_of_philo)
-		safe_thread(table, &table->philo[i].thread, &table->philo[i], JOIN);
+	{
+		if (pthread_join(table->philo[i].thread, NULL))
+			return (msg_error(table, "Error: Failed to join thread", 2));
+	}
 	destroy_padlocks(table);
+	return (0);
 }
 
-static void	ft_putstr(char *str, int fd)
-{
-	while (*str)
-		write (fd, str++, sizeof(char));
-}
-
-void	error_exit(t_table *table, char *msg, int mode)
+int	msg_error(t_table *table, char *msg, int mode)
 {
 	if (mode == 1)
 		clean_table(table);
@@ -55,7 +55,8 @@ void	error_exit(t_table *table, char *msg, int mode)
 		destroy_padlocks(table);
 	else if (mode == 3)
 		finish_dinner(table);
-	ft_putstr(msg, STDERR_FILENO);
-	ft_putstr("\n", STDERR_FILENO);
-	exit(EXIT_FAILURE);
+	while (*msg)
+		write (2, msg++, sizeof(char));
+	write (2, "\n", sizeof(char));
+	return (1);
 }

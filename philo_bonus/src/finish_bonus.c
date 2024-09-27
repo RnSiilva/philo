@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   finish_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: resilva < resilva@student.42porto.com>     +#+  +:+       +#+        */
+/*   By: resilva <resilva@student.42porto.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/20 21:31:17 by resilva           #+#    #+#             */
-/*   Updated: 2024/09/25 08:47:58 by resilva          ###   ########.fr       */
+/*   Updated: 2024/09/27 21:59:48 by resilva          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static void	ft_putstr(char *str, int fd)
 		write (fd, str++, sizeof(char));
 }
 
-void	msg_error(t_table *table, char *msg, int mode)
+void	error_exit(t_table *table, char *msg, int mode)
 {
 	if (mode == 1)
 		free(table->philo);
@@ -33,10 +33,11 @@ void	finish_dinner(t_table *table)
 {
 	int	i;
 
-	if (table->limit_meals != 0)
+	i = -1;
+	while (++i < table->num_of_philo)
 	{
-		i = -1;
-		while (++i < table->num_of_philo && table->philo[i].pid != -1)
+		pthread_mutex_destroy(&table->philo[i].meal_lock);
+		if (table->philo[i].pid != -1)
 			kill(table->philo[i].pid, SIGKILL);
 	}
 	if (table->philo)
@@ -44,11 +45,7 @@ void	finish_dinner(t_table *table)
 	sem_close(table->forks);
 	sem_close(table->death_sem);
 	sem_close(table->print_sem);
-	sem_close(table->finish_sem);
-	sem_close(table->satisfied_sem);
 	sem_unlink(SEM_FORK);
 	sem_unlink(SEM_DEATH);
 	sem_unlink(SEM_PRINT);
-	sem_unlink(SEM_FINISH);
-	sem_unlink(SEM_DEATH);
 }

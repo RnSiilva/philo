@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   dinner_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: resilva < resilva@student.42porto.com>     +#+  +:+       +#+        */
+/*   By: resilva <resilva@student.42porto.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/20 23:18:01 by resilva           #+#    #+#             */
-/*   Updated: 2024/09/24 21:56:37 by resilva          ###   ########.fr       */
+/*   Updated: 2024/09/27 21:44:36 by resilva          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,35 +14,14 @@
 
 static void	take_fork(t_philo *philo);
 
-void	*check_full(void *data)
-{
-	int		i;
-	t_table	*table;
-
-	table = (t_table *)data;
-	i = -1;
-	while (++i < table->num_of_philo)
-		sem_wait(table->satisfied_sem);
-	sem_post(table->finish_sem);
-	return (NULL);
-}
-
 static void	eat(t_philo *philo)
 {
-	print_action(philo, EAT);
 	sem_wait(philo->table->death_sem);
 	philo->last_meal = ft_gettime();
-	sem_post(philo->table->death_sem);
 	philo->eat_count++;
-	if ((philo->table->limit_meals != -1) && \
-		(philo->eat_count == philo->table->limit_meals))
-	{
-		ft_sleep(philo->table->time_to_eat);
-		sem_post(philo->table->forks);
-		sem_post(philo->table->forks);
-		sem_post(philo->table->satisfied_sem);
-		return ;
-	}
+	if (is_someone_hungry(philo))
+		print_action(philo, EAT);
+	sem_post(philo->table->death_sem);
 	ft_sleep(philo->table->time_to_eat);
 	sem_post(philo->table->forks);
 	sem_post(philo->table->forks);
@@ -64,18 +43,21 @@ void	*check_death(void *data)
 	while (42)
 	{
 		sem_wait(philo->table->death_sem);
-		if ((ft_gettime() - philo->last_meal)
+		pthread_mutex_lock(&philo->meal_lock);
+		if ((ft_gettime() - philo->last_meal) \
 			>= (philo->table->time_to_die))
 		{
-			sem_wait(philo->table->print_sem);
-			printf("%lld %d %s\n",
-				ft_gettime() - philo->table->time_start, philo->id, DIE);
-			sem_post(philo->table->finish_sem);
-			sem_post(philo->table->death_sem);
-			break ;
+			print_action(philo, DIE);
+			pthread_mutex_unlock(&philo->meal_lock);
+			exit(0);
+		}
+		pthread_mutex_unlock(&philo->meal_lock);
+		if (!is_someone_hungry(philo))
+		{
+			print_action(philo, EAT);
+			exit(0);
 		}
 		sem_post(philo->table->death_sem);
-		usleep(5);
 	}
 	return (NULL);
 }

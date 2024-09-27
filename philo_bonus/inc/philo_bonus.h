@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: resilva < resilva@student.42porto.com>     +#+  +:+       +#+        */
+/*   By: resilva <resilva@student.42porto.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/20 18:35:42 by resilva           #+#    #+#             */
-/*   Updated: 2024/09/25 09:04:20 by resilva          ###   ########.fr       */
+/*   Updated: 2024/09/27 21:52:50 by resilva          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@
 #define SEM_FORK "/fork"
 #define SEM_DEATH "/death"
 #define SEM_PRINT "/print"
-#define SEM_FINISH "/finish"
-#define SEM_SATISFIED "/satisfied"
 
 #define TAKE "has taken a fork"
 #define EAT "is eating"
@@ -46,16 +44,18 @@ typedef struct s_table	t_table;
  * @param last_meal     Timestamp (in milliseconds) of the last time the
  * philosopher ate.
  * @param pid           Process ID associated with the philosopher.
+ * @param meal_lock		
  * @param table         Pointer to the table structure, which holds
  * shared data.
  */
 typedef struct s_philo
 {
-	int			id;
-	int			eat_count;
-	long long	last_meal;
-	pid_t		pid;
-	t_table		*table;
+	int				id;
+	int				eat_count;
+	long long		last_meal;
+	pid_t			pid;
+	pthread_mutex_t	meal_lock;
+	t_table			*table;
 }				t_philo;
 
 /**
@@ -97,8 +97,6 @@ typedef struct s_table
 	sem_t		*forks;
 	sem_t		*print_sem;
 	sem_t		*death_sem;
-	sem_t		*satisfied_sem;
-	sem_t		*finish_sem;
 }				t_table;
 
 /**
@@ -169,7 +167,7 @@ long long	ft_gettime(void);
  * @param mode  Determines the behavior after displaying
  * the error (e.g., exit the program).
  */
-void		msg_error(t_table *table, char *msg, int mode);
+void		error_exit(t_table *table, char *msg, int mode);
 
 /**
  * @brief Safely allocate memory and handle errors.
@@ -180,3 +178,16 @@ void		msg_error(t_table *table, char *msg, int mode);
  * @return A pointer to the allocated memory, or exits on failure.
  */
 void		*safe_malloc(t_table *table, size_t bytes);
+
+/**
+ * @brief Check if any philosopher still needs to eat.
+ *
+ * This function checks if the current philosopher or any other
+ * philosopher has not yet finished their meal quota, based on the
+ * maximum allowed meals. It returns true if any philosopher is still
+ * hungry, otherwise returns false.
+ *
+ * @param philo Pointer to the philosopher structure to check meal status.
+ * @return true if any philosopher still needs to eat, false otherwise.
+ */
+int			is_someone_hungry(t_philo *philo);

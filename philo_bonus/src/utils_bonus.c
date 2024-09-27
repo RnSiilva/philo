@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: resilva < resilva@student.42porto.com>     +#+  +:+       +#+        */
+/*   By: resilva <resilva@student.42porto.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/20 21:22:13 by resilva           #+#    #+#             */
-/*   Updated: 2024/09/25 08:47:58 by resilva          ###   ########.fr       */
+/*   Updated: 2024/09/27 20:24:27 by resilva          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,18 +27,18 @@ int	ft_atoi(char *str)
 	while ((*str >= 9 && *str <= 13) || *str == 32)
 		str++;
 	if (*str == '-')
-		msg_error(NULL, "Feed me only positive numbers!", 0);
+		error_exit(NULL, "Feed me only positive numbers!", 0);
 	else if (*str == '+')
 		str++;
 	res = 0;
 	while (*str)
 	{
 		if (*str < '0' || *str > '9')
-			msg_error(NULL, "The input is not a correct digit!", 0);
+			error_exit(NULL, "The input is not a correct digit!", 0);
 		res = (res * 10) + (*str++ - 48);
 	}
 	if (res > INT_MAX)
-		msg_error(NULL, "Some value is too big, INT_MAX is the limit!", 0);
+		error_exit(NULL, "Some value is too big, INT_MAX is the limit!", 0);
 	return ((int)res);
 }
 
@@ -48,7 +48,7 @@ void	*safe_malloc(t_table *table, size_t bytes)
 
 	res = malloc(bytes);
 	if (!res)
-		msg_error(table, "Error with malloc!", 1);
+		error_exit(table, "Error with malloc!", 1);
 	return (res);
 }
 
